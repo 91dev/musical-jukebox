@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true" scan="true" scanPeriod="30 seconds">
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property resource="logback-dev.properties"/>
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} [%t{14}] [%mdc{X-RequestUrl},%mdc{X-RequestMethod},%mdc{X-ContextId},%mdc{X-ContextType},%mdc{X-B3-TraceId},%mdc{X-B3-SpanId},%mdc{X─B3-ParentSpanId}] %logger{59} : %msg%n"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_PATH}/jukebox.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!--Creating Async appender. Now we will use FILE-ASYNC appender instead of FILE-->
+    <appender name="FILE-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <!--Suppress warning messages for exceptions handled by GlobalExceptionHandler-->
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="ERROR"
+            additivity="false"/>
+    <logger name="org.hibernate" level="TRACE" additivity="false"/>
+
+    <!--Override level for this package. Additivity false to avoid logging twice-->
+    <logger name="com.moveinsync" level="${LOG_LEVEL}" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE-ASYNC"/>
+    </logger>
+
+    <!--This will start logging to respective refs-->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE-ASYNC"/>
+    </root>
+</configuration>
